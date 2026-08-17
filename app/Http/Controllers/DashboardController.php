@@ -1,0 +1,25 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Actions\Tasks\SummarizeTasks;
+use App\Models\Task;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class DashboardController extends Controller
+{
+    /**
+     * Show an overview of the user's tasks.
+     */
+    public function __invoke(Request $request, SummarizeTasks $summarize): Response
+    {
+        $user = $request->user();
+
+        return Inertia::render('dashboard', [
+            'stats' => $summarize->handle($user),
+            'upcomingTasks' => Task::whereBelongsTo($user)->open()->orderByUrgency()->take(5)->get(),
+        ]);
+    }
+}
