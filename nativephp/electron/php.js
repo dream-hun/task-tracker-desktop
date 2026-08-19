@@ -1,10 +1,10 @@
 import fs from 'fs';
-import fs_extra from 'fs-extra';
 import { join } from 'path';
 import { pipeline } from 'stream/promises';
 import { promisify } from 'util';
-import unzip from 'yauzl';
 import zlib from 'zlib';
+import fs_extra from 'fs-extra';
+import unzip from 'yauzl';
 
 const { removeSync, ensureDirSync } = fs_extra;
 const inflateRaw = promisify(zlib.inflateRaw);
