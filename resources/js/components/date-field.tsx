@@ -7,29 +7,50 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import { formatDueDate, parseDueDate, toDueDateValue } from '@/lib/tasks';
+import { formatDate, parseDateValue, toDateValue } from '@/lib/dates';
 import { cn } from '@/lib/utils';
 
-type TaskDueDateFieldProps = {
+type DateFieldProps = {
     id: string;
-    name: string;
+    /** Submits the picked `Y-m-d` value with a plain form. */
+    name?: string;
+    /** Controls the field. Leave out to let the field track its own value. */
+    value?: string | null;
     defaultValue?: string | null;
+    onChange?: (value: string) => void;
+    placeholder?: string;
+    clearable?: boolean;
+    dataTest?: string;
 };
 
-export default function TaskDueDateField({
+export default function DateField({
     id,
     name,
+    value,
     defaultValue,
-}: TaskDueDateFieldProps) {
+    onChange,
+    placeholder = 'No date',
+    clearable = true,
+    dataTest,
+}: DateFieldProps) {
     const [open, setOpen] = useState(false);
-    const [dueDate, setDueDate] = useState(defaultValue ?? '');
-    const selected = dueDate === '' ? undefined : parseDueDate(dueDate);
+    const [ownValue, setOwnValue] = useState(defaultValue ?? '');
+    const date = (value === undefined ? ownValue : (value ?? '')) || '';
+    const selected = date === '' ? undefined : parseDateValue(date);
+
+    function pick(next: string): void {
+        if (value === undefined) {
+            setOwnValue(next);
+        }
+
+        onChange?.(next);
+    }
 
     return (
         <div className="flex items-center gap-2">
-            <input type="hidden" name={name} value={dueDate} />
+            {name && <input type="hidden" name={name} value={date} />}
 
-            {/* The popover is modal so it stays clickable inside the task dialog. */}
+            {/* The popover is modal so it stays clickable inside a dialog. */}
             <Popover open={open} onOpenChange={setOpen} modal>
                 <PopoverTrigger asChild>
                     <Button
@@ -40,12 +61,12 @@ export default function TaskDueDateField({
                             'flex-1 justify-start font-normal',
                             selected === undefined && 'text-muted-foreground',
                         )}
-                        data-test="due-date-trigger"
+                        data-test={dataTest}
                     >
                         <CalendarIcon className="size-4" />
                         {selected === undefined
-                            ? 'No due date'
-                            : formatDueDate(dueDate)}
+                            ? placeholder
+                            : formatDate(date)}
                     </Button>
                 </PopoverTrigger>
 
@@ -55,9 +76,9 @@ export default function TaskDueDateField({
                         selected={selected}
                         defaultMonth={selected}
                         autoFocus
-                        onSelect={(date) => {
-                            setDueDate(
-                                date === undefined ? '' : toDueDateValue(date),
+                        onSelect={(picked) => {
+                            pick(
+                                picked === undefined ? '' : toDateValue(picked),
                             );
                             setOpen(false);
                         }}
@@ -65,13 +86,13 @@ export default function TaskDueDateField({
                 </PopoverContent>
             </Popover>
 
-            {dueDate !== '' && (
+            {clearable && date !== '' && (
                 <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    aria-label="Clear due date"
-                    onClick={() => setDueDate('')}
+                    aria-label="Clear date"
+                    onClick={() => pick('')}
                 >
                     <X className="size-4" />
                 </Button>

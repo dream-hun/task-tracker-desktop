@@ -2,8 +2,8 @@ import { Form } from '@inertiajs/react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import TaskController from '@/actions/App/Http/Controllers/TaskController';
+import DateField from '@/components/date-field';
 import InputError from '@/components/input-error';
-import TaskDueDateField from '@/components/task-due-date-field';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -169,10 +169,12 @@ export default function TaskFormDialog({
                             <div className="grid gap-2">
                                 <Label htmlFor="due_date">Due date</Label>
 
-                                <TaskDueDateField
+                                <DateField
                                     id="due_date"
                                     name="due_date"
                                     defaultValue={task?.due_date}
+                                    placeholder="No due date"
+                                    dataTest="due-date-trigger"
                                 />
 
                                 <InputError message={errors.due_date} />
