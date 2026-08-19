@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 use Illuminate\Support\Str;
@@ -12,6 +14,16 @@ enum DocumentStatus: string
     case Declined = 'declined';
     case Paid = 'paid';
     case Cancelled = 'cancelled';
+
+    /**
+     * Get every status value.
+     *
+     * @return array<int, string>
+     */
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 
     /**
      * Get the name this status is known by.
@@ -47,15 +59,5 @@ enum DocumentStatus: string
     public function isSettled(): bool
     {
         return $this === self::Paid || $this === self::Accepted;
-    }
-
-    /**
-     * Get every status value.
-     *
-     * @return array<int, string>
-     */
-    public static function values(): array
-    {
-        return array_column(self::cases(), 'value');
     }
 }

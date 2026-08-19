@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Concerns;
 
 use App\Enums\DocumentStatus;
@@ -7,13 +9,14 @@ use App\Enums\DocumentType;
 use App\Models\Document;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
+use Stringable;
 
 trait DocumentValidationRules
 {
     /**
      * Get the validation rules used to validate invoices and quotations.
      *
-     * @return array<string, array<int, ValidationRule|array<mixed>|string>>
+     * @return array<string, array<int, ValidationRule|Stringable|array<mixed>|string>>
      */
     protected function documentRules(DocumentType $type): array
     {
@@ -38,7 +41,7 @@ trait DocumentValidationRules
     /**
      * Get the validation rules used to validate the status of the given document type.
      *
-     * @return array<int, ValidationRule|array<mixed>|string>
+     * @return array<int, ValidationRule|Stringable|array<mixed>|string>
      */
     protected function statusRules(DocumentType $type): array
     {

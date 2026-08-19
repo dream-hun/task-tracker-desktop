@@ -1,11 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Enums;
 
 enum DocumentType: string
 {
     case Invoice = 'invoice';
     case Quotation = 'quotation';
+
+    /**
+     * Get every type value.
+     *
+     * @return array<int, string>
+     */
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 
     /**
      * Get the name this type is known by.
@@ -72,15 +84,5 @@ enum DocumentType: string
     public function statusValues(): array
     {
         return array_map(fn (DocumentStatus $status): string => $status->value, $this->statuses());
-    }
-
-    /**
-     * Get every type value.
-     *
-     * @return array<int, string>
-     */
-    public static function values(): array
-    {
-        return array_column(self::cases(), 'value');
     }
 }

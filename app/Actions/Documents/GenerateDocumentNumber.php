@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Documents;
 
 use App\Enums\DocumentType;
 use App\Models\User;
 use Illuminate\Support\Str;
 
-class GenerateDocumentNumber
+final class GenerateDocumentNumber
 {
     /**
      * Build the next sequential number for the user, such as "INV-2026-0007".

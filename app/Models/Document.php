@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\DocumentStatus;
@@ -57,10 +59,22 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'discount',
     'notes',
 ])]
-class Document extends Model
+final class Document extends Model
 {
     /** @use HasFactory<DocumentFactory> */
     use HasFactory;
+
+    /**
+     * The currency documents are billed in until the user picks another one.
+     */
+    public const string DEFAULT_CURRENCY = 'USD';
+
+    /**
+     * The currencies a document can be billed in.
+     *
+     * @var list<string>
+     */
+    public const array CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'KES', 'NGN', 'RWF', 'ZAR'];
 
     /**
      * The model's default attribute values.
@@ -78,35 +92,6 @@ class Document extends Model
      * @var list<string>
      */
     protected $appends = ['subtotal_cents', 'tax_cents', 'total_cents', 'is_overdue'];
-
-    /**
-     * The currency documents are billed in until the user picks another one.
-     */
-    public const string DEFAULT_CURRENCY = 'USD';
-
-    /**
-     * The currencies a document can be billed in.
-     *
-     * @var list<string>
-     */
-    public const array CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'INR', 'KES', 'NGN', 'RWF', 'ZAR'];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'type' => DocumentType::class,
-            'status' => DocumentStatus::class,
-            'issue_date' => 'date:Y-m-d',
-            'due_date' => 'date:Y-m-d',
-            'tax_rate' => 'decimal:2',
-            'discount_cents' => 'integer',
-        ];
-    }
 
     /**
      * Get the user the document belongs to.
@@ -144,6 +129,23 @@ class Document extends Model
     public function isQuotation(): bool
     {
         return $this->type === DocumentType::Quotation;
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'type' => DocumentType::class,
+            'status' => DocumentStatus::class,
+            'issue_date' => 'date:Y-m-d',
+            'due_date' => 'date:Y-m-d',
+            'tax_rate' => 'decimal:2',
+            'discount_cents' => 'integer',
+        ];
     }
 
     /**

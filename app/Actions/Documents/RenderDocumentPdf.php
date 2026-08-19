@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Documents;
 
 use App\Models\Document;
@@ -7,7 +9,7 @@ use App\Models\User;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
-class RenderDocumentPdf
+final class RenderDocumentPdf
 {
     /**
      * Render the document as a PDF file and return its raw bytes.
@@ -30,7 +32,7 @@ class RenderDocumentPdf
     /**
      * Render the document without reaching out to the network for assets.
      */
-    protected function options(): Options
+    private function options(): Options
     {
         $options = new Options;
         $options->setIsRemoteEnabled(false);

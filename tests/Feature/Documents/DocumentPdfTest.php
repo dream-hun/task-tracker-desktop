@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Document;
 use App\Models\DocumentItem;
 use App\Models\User;
@@ -45,7 +47,7 @@ test('a document with many lines and unusual characters still renders', function
 
     $response->assertOk();
 
-    expect(strlen($response->content()))->toBeGreaterThan(1000);
+    expect(mb_strlen($response->content()))->toBeGreaterThan(1000);
 });
 
 test('a document of another user cannot be downloaded', function () {

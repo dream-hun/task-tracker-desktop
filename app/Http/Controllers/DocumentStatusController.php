@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Documents\UpdateDocumentStatusRequest;
@@ -7,7 +9,7 @@ use App\Models\Document;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 
-class DocumentStatusController extends Controller
+final class DocumentStatusController extends Controller
 {
     /**
      * Update the status of the given invoice or quotation.

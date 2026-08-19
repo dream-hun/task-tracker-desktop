@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\DocumentStatus;
 use App\Enums\DocumentType;
 use App\Models\Document;

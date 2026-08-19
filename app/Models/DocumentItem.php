@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Carbon\CarbonImmutable;
@@ -24,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Document $document
  */
 #[Fillable(['description', 'quantity', 'unit_price', 'position'])]
-class DocumentItem extends Model
+final class DocumentItem extends Model
 {
     /** @use HasFactory<DocumentItemFactory> */
     use HasFactory;
@@ -35,6 +37,16 @@ class DocumentItem extends Model
      * @var list<string>
      */
     protected $appends = ['total_cents'];
+
+    /**
+     * Get the document the line belongs to.
+     *
+     * @return BelongsTo<Document, $this>
+     */
+    public function document(): BelongsTo
+    {
+        return $this->belongsTo(Document::class);
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -48,16 +60,6 @@ class DocumentItem extends Model
             'unit_price_cents' => 'integer',
             'position' => 'integer',
         ];
-    }
-
-    /**
-     * Get the document the line belongs to.
-     *
-     * @return BelongsTo<Document, $this>
-     */
-    public function document(): BelongsTo
-    {
-        return $this->belongsTo(Document::class);
     }
 
     /**

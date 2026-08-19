@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Document;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends Factory<DocumentItem>
  */
-class DocumentItemFactory extends Factory
+final class DocumentItemFactory extends Factory
 {
     /**
      * Define the model's default state.

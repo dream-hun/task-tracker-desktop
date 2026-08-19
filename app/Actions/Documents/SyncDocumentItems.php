@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Documents;
 
 use App\Models\Document;
 
-class SyncDocumentItems
+final class SyncDocumentItems
 {
     /**
      * Replace the lines of the document with the given ones, keeping their order.

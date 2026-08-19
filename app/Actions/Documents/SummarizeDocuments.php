@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Documents;
 
 use App\Enums\DocumentStatus;
@@ -7,7 +9,7 @@ use App\Enums\DocumentType;
 use App\Models\Document;
 use App\Models\User;
 
-class SummarizeDocuments
+final class SummarizeDocuments
 {
     /**
      * Count and add up the documents of the user for the given type.

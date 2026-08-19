@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Documents;
 
 use App\Enums\DocumentType;
@@ -7,11 +9,11 @@ use App\Models\Document;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-class CreateDocument
+final class CreateDocument
 {
     public function __construct(
-        protected GenerateDocumentNumber $generateNumber,
-        protected SyncDocumentItems $syncItems,
+        private GenerateDocumentNumber $generateNumber,
+        private SyncDocumentItems $syncItems,
     ) {}
 
     /**

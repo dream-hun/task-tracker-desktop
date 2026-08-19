@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Documents;
 
 use App\Models\Document;
 use Illuminate\Support\Facades\DB;
 
-class UpdateDocument
+final class UpdateDocument
 {
-    public function __construct(protected SyncDocumentItems $syncItems) {}
+    public function __construct(private SyncDocumentItems $syncItems) {}
 
     /**
      * Update a document and replace the lines it bills.

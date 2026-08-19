@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Actions\Documents\CreateDocument;
@@ -11,6 +13,7 @@ use App\Enums\DocumentType;
 use App\Http\Requests\Documents\StoreDocumentRequest;
 use App\Http\Requests\Documents\UpdateDocumentRequest;
 use App\Models\Document;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +21,7 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class DocumentController extends Controller
+final class DocumentController extends Controller
 {
     /**
      * The number of days an invoice is payable, and a quotation stays valid, by default.
@@ -32,7 +35,7 @@ class DocumentController extends Controller
      */
     public function index(Request $request, SummarizeDocuments $summarize): Response
     {
-        $user = $request->user();
+        $user = $request->user() ?? throw new AuthenticationException;
 
         $type = $this->requestedType($request);
         $search = $request->string('search')->trim()->toString() ?: null;
@@ -66,13 +69,14 @@ class DocumentController extends Controller
      */
     public function create(Request $request, GenerateDocumentNumber $generateNumber): Response
     {
+        $user = $request->user() ?? throw new AuthenticationException;
         $type = $this->requestedType($request);
 
         return Inertia::render('documents/create', [
             'type' => $type,
             'statuses' => $type->statusValues(),
             'currencies' => Document::CURRENCIES,
-            'nextNumber' => $generateNumber->handle($request->user(), $type),
+            'nextNumber' => $generateNumber->handle($user, $type),
             'defaults' => [
                 'issue_date' => today()->toDateString(),
                 'due_date' => today()->addDays($type === DocumentType::Invoice
@@ -94,7 +98,9 @@ class DocumentController extends Controller
         /** @var array<int, array{description: string, quantity: string, unit_price: string}> $items */
         $items = $request->validated('items');
 
-        $document = $createDocument->handle($request->user(), $request->documentType(), $attributes, $items);
+        $user = $request->user() ?? throw new AuthenticationException;
+
+        $document = $createDocument->handle($user, $request->documentType(), $attributes, $items);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __(':number created.', ['number' => $document->number])]);
 

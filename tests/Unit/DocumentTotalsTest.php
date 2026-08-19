@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\Document;
 use App\Models\DocumentItem;
 use Illuminate\Database\Eloquent\Collection;

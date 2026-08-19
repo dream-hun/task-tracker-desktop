@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Actions\Documents\ConvertQuotationToInvoice;
@@ -9,7 +11,7 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Symfony\Component\HttpFoundation\Response;
 
-class DocumentConversionController extends Controller
+final class DocumentConversionController extends Controller
 {
     /**
      * Draft an invoice from the given quotation.

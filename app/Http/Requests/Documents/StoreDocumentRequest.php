@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Documents;
 
 use App\Concerns\DocumentValidationRules;
@@ -8,7 +10,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreDocumentRequest extends FormRequest
+final class StoreDocumentRequest extends FormRequest
 {
     use DocumentValidationRules;
 

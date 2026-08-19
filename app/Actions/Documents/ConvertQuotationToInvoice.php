@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Documents;
 
 use App\Enums\DocumentStatus;
@@ -8,7 +10,7 @@ use App\Models\Document;
 use App\Models\DocumentItem;
 use Illuminate\Support\Facades\DB;
 
-class ConvertQuotationToInvoice
+final class ConvertQuotationToInvoice
 {
     /**
      * The number of days a converted invoice is payable in.
@@ -16,8 +18,8 @@ class ConvertQuotationToInvoice
     public const int PAYMENT_TERM_IN_DAYS = 14;
 
     public function __construct(
-        protected GenerateDocumentNumber $generateNumber,
-        protected SyncDocumentItems $syncItems,
+        private GenerateDocumentNumber $generateNumber,
+        private SyncDocumentItems $syncItems,
     ) {}
 
     /**
