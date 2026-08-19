@@ -101,3 +101,16 @@ test('already verified user visiting verification link is redirected without fir
     Event::assertNotDispatched(Verified::class);
     expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
 });
+
+test('unverified user cannot reach routes behind the verified middleware', function (): void {
+    $user = User::factory()->unverified()->create();
+
+    $this->actingAs($user)->get(route('dashboard'))
+        ->assertRedirect(route('verification.notice'));
+});
+
+test('verified user can reach routes behind the verified middleware', function (): void {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->get(route('dashboard'))->assertOk();
+});
