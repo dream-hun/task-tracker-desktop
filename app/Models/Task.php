@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\TaskFactory;
+use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,7 +32,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read User $user
  */
 #[Fillable(['title', 'description', 'status', 'priority', 'due_date'])]
-class Task extends Model
+#[Appends(['is_overdue'])]
+final class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */
     use HasFactory;
@@ -45,18 +49,21 @@ class Task extends Model
     ];
 
     /**
-     * The accessors to append to the model's array form.
+     * Get the user the task belongs to.
      *
-     * @var list<string>
+     * @return BelongsTo<User, $this>
      */
-    protected $appends = ['is_overdue'];
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Keep the completion timestamp in sync with the task status.
      */
     protected static function booted(): void
     {
-        static::saving(function (Task $task): void {
+        self::saving(function (Task $task): void {
             if ($task->isDirty('status')) {
                 $task->completed_at = $task->status->isCompleted() ? now() : null;
             }
@@ -76,16 +83,6 @@ class Task extends Model
             'due_date' => 'date:Y-m-d',
             'completed_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Get the user the task belongs to.
-     *
-     * @return BelongsTo<User, $this>
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
     }
 
     /**
@@ -169,7 +166,7 @@ class Task extends Model
     {
         $query->orderByRaw('completed_at is not null')
             ->orderByRaw('due_date is null')
-            ->orderBy('due_date')
+            ->oldest('due_date')
             ->orderByRaw('case priority when ? then 3 when ? then 2 when ? then 1 else 0 end desc', [
                 TaskPriority::High->value,
                 TaskPriority::Medium->value,

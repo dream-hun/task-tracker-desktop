@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Providers\NativeAppServiceProvider;
 
 return [
@@ -128,7 +130,7 @@ return [
                 'region' => env('AWS_DEFAULT_REGION'),
                 'bucket' => env('AWS_BUCKET'),
                 'endpoint' => env('AWS_ENDPOINT'),
-                'path' => env('NATIVEPHP_UPDATER_PATH', null),
+                'path' => env('NATIVEPHP_UPDATER_PATH'),
                 /**
                  * Optional public URL for serving updates (e.g., CDN or custom domain).
                  * When set, updates will be downloaded from this URL instead of the S3 endpoint.
@@ -144,7 +146,7 @@ return [
                 'secret' => env('DO_SPACES_SECRET_ACCESS_KEY'),
                 'name' => env('DO_SPACES_NAME'),
                 'region' => env('DO_SPACES_REGION'),
-                'path' => env('NATIVEPHP_UPDATER_PATH', null),
+                'path' => env('NATIVEPHP_UPDATER_PATH'),
             ],
             'prebuild' => [
                 'npm run build', // Run a command before the build
@@ -191,5 +193,5 @@ return [
     /**
      * Custom PHP binary path.
      */
-    'binary_path' => env('NATIVEPHP_PHP_BINARY_PATH', null),
+    'binary_path' => env('NATIVEPHP_PHP_BINARY_PATH'),
 ];
