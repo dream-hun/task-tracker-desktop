@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Carbon\CarbonImmutable;
 use Database\Factories\DocumentItemFactory;
+use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,17 +27,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Document $document
  */
 #[Fillable(['description', 'quantity', 'unit_price', 'position'])]
+#[Appends(['total_cents'])]
 final class DocumentItem extends Model
 {
     /** @use HasFactory<DocumentItemFactory> */
     use HasFactory;
-
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var list<string>
-     */
-    protected $appends = ['total_cents'];
 
     /**
      * Get the document the line belongs to.

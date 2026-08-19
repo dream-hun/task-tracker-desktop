@@ -6,7 +6,7 @@ use App\Enums\DocumentStatus;
 use App\Models\Document;
 use App\Models\User;
 
-test('the status of an invoice can be changed', function () {
+test('the status of an invoice can be changed', function (): void {
     $user = User::factory()->create();
     $invoice = Document::factory()->for($user)->invoice()->sent()->create();
 
@@ -20,7 +20,7 @@ test('the status of an invoice can be changed', function () {
     expect($invoice->refresh()->status)->toBe(DocumentStatus::Paid);
 });
 
-test('the status of a quotation can be changed', function () {
+test('the status of a quotation can be changed', function (): void {
     $user = User::factory()->create();
     $quotation = Document::factory()->for($user)->quotation()->sent()->create();
 
@@ -33,7 +33,7 @@ test('the status of a quotation can be changed', function () {
     expect($quotation->refresh()->status)->toBe(DocumentStatus::Declined);
 });
 
-test('a status of the other document type is rejected', function (string $type, string $status) {
+test('a status of the other document type is rejected', function (string $type, string $status): void {
     $user = User::factory()->create();
     $document = Document::factory()->for($user)->{$type}()->sent()->create();
 
@@ -49,7 +49,7 @@ test('a status of the other document type is rejected', function (string $type, 
     'a quotation cannot be paid' => ['quotation', 'paid'],
 ]);
 
-test('the status of a document cannot be changed by another user', function () {
+test('the status of a document cannot be changed by another user', function (): void {
     $document = Document::factory()->invoice()->sent()->create();
 
     $this

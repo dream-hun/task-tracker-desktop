@@ -30,13 +30,13 @@ function documentPayload(array $overrides = []): array
     ], $overrides);
 }
 
-test('the draft form suggests the next number for the chosen type', function () {
+test('the draft form suggests the next number for the chosen type', function (): void {
     $user = User::factory()->create();
     Document::factory()->for($user)->invoice()->create(['number' => sprintf('INV-%d-0007', today()->year)]);
 
     $response = $this->actingAs($user)->get(route('documents.create', ['type' => 'invoice']));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->component('documents/create')
         ->where('type', 'invoice')
         ->where('nextNumber', sprintf('INV-%d-0008', today()->year))
@@ -45,7 +45,7 @@ test('the draft form suggests the next number for the chosen type', function () 
     );
 });
 
-test('an invoice can be created with its lines', function () {
+test('an invoice can be created with its lines', function (): void {
     $user = User::factory()->create();
 
     $response = $this
@@ -71,7 +71,7 @@ test('an invoice can be created with its lines', function () {
     expect($document->items->last()->unit_price_cents)->toBe(4999);
 });
 
-test('the totals of a document follow from its lines, discount and tax rate', function () {
+test('the totals of a document follow from its lines, discount and tax rate', function (): void {
     $user = User::factory()->create();
 
     $this->actingAs($user)->post(route('documents.store'), documentPayload())->assertSessionHasNoErrors();
@@ -84,7 +84,7 @@ test('the totals of a document follow from its lines, discount and tax rate', fu
     expect($document->total_cents)->toBe(109149);
 });
 
-test('documents are numbered per user and per type', function () {
+test('documents are numbered per user and per type', function (): void {
     $user = User::factory()->create();
     $other = User::factory()->create();
 
@@ -104,7 +104,7 @@ test('documents are numbered per user and per type', function () {
     expect($other->documents()->pluck('number')->all())->toBe([sprintf('INV-%d-0001', $year)]);
 });
 
-test('creating a document validates the submitted details', function (array $payload, string $invalidField) {
+test('creating a document validates the submitted details', function (array $payload, string $invalidField): void {
     $user = User::factory()->create();
 
     $response = $this
@@ -131,7 +131,7 @@ test('creating a document validates the submitted details', function (array $pay
     'line with a negative price' => [['items' => [['description' => 'Work', 'quantity' => '1', 'unit_price' => '-10']]], 'items.0.unit_price'],
 ]);
 
-test('a quotation can only use statuses of its own type', function () {
+test('a quotation can only use statuses of its own type', function (): void {
     $user = User::factory()->create();
 
     $this
@@ -147,14 +147,14 @@ test('a quotation can only use statuses of its own type', function () {
         ->assertSessionHasErrors('status');
 });
 
-test('a document can be edited', function () {
+test('a document can be edited', function (): void {
     $user = User::factory()->create();
     $document = Document::factory()->for($user)->invoice()->create();
     DocumentItem::factory()->for($document)->billing(1, 10)->create();
 
     $response = $this->actingAs($user)->get(route('documents.edit', $document));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->component('documents/edit')
         ->where('document.id', $document->id)
         ->has('document.items', 1)
@@ -162,7 +162,7 @@ test('a document can be edited', function () {
     );
 });
 
-test('a document can be updated and its lines replaced', function () {
+test('a document can be updated and its lines replaced', function (): void {
     $user = User::factory()->create();
     $document = Document::factory()->for($user)->invoice()->draft()->create(['client_name' => 'Old Client']);
     $removed = DocumentItem::factory()->for($document)->billing(1, 10)->create();
@@ -191,7 +191,7 @@ test('a document can be updated and its lines replaced', function () {
     $this->assertModelMissing($removed);
 });
 
-test('the type and number of a document do not change when it is updated', function () {
+test('the type and number of a document do not change when it is updated', function (): void {
     $user = User::factory()->create();
     $document = Document::factory()->for($user)->quotation()->draft()->create(['number' => 'QUO-2026-0003']);
 
@@ -210,7 +210,7 @@ test('the type and number of a document do not change when it is updated', funct
     expect($document->number)->toBe('QUO-2026-0003');
 });
 
-test('a document cannot be edited or updated by another user', function () {
+test('a document cannot be edited or updated by another user', function (): void {
     $document = Document::factory()->invoice()->create(['client_name' => 'Not Yours']);
 
     $this->actingAs(User::factory()->create())->get(route('documents.edit', $document))->assertForbidden();
@@ -223,7 +223,7 @@ test('a document cannot be edited or updated by another user', function () {
     expect($document->refresh()->client_name)->toBe('Not Yours');
 });
 
-test('a document can be deleted with its lines', function () {
+test('a document can be deleted with its lines', function (): void {
     $user = User::factory()->create();
     $document = Document::factory()->for($user)->invoice()->create();
     $item = DocumentItem::factory()->for($document)->create();
@@ -239,7 +239,7 @@ test('a document can be deleted with its lines', function () {
     $this->assertModelMissing($item);
 });
 
-test('a document cannot be deleted by another user', function () {
+test('a document cannot be deleted by another user', function (): void {
     $document = Document::factory()->invoice()->create();
 
     $this
@@ -250,7 +250,7 @@ test('a document cannot be deleted by another user', function () {
     $this->assertModelExists($document);
 });
 
-test('deleting a user deletes their documents', function () {
+test('deleting a user deletes their documents', function (): void {
     $user = User::factory()->create();
     $document = Document::factory()->for($user)->invoice()->create();
     $item = DocumentItem::factory()->for($document)->create();
