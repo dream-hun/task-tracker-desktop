@@ -63,7 +63,7 @@ final class DocumentFactory extends Factory
      */
     public function draft(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'status' => DocumentStatus::Draft,
         ]);
     }
@@ -73,7 +73,7 @@ final class DocumentFactory extends Factory
      */
     public function sent(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'status' => DocumentStatus::Sent,
         ]);
     }
@@ -83,7 +83,7 @@ final class DocumentFactory extends Factory
      */
     public function paid(): static
     {
-        return $this->invoice()->state(fn (array $attributes) => [
+        return $this->invoice()->state(fn (array $attributes): array => [
             'status' => DocumentStatus::Paid,
         ]);
     }
@@ -93,7 +93,7 @@ final class DocumentFactory extends Factory
      */
     public function accepted(): static
     {
-        return $this->quotation()->state(fn (array $attributes) => [
+        return $this->quotation()->state(fn (array $attributes): array => [
             'status' => DocumentStatus::Accepted,
         ]);
     }
@@ -103,7 +103,7 @@ final class DocumentFactory extends Factory
      */
     public function overdue(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'status' => DocumentStatus::Sent,
             'issue_date' => now()->subMonth(),
             'due_date' => now()->subWeek(),
@@ -115,7 +115,7 @@ final class DocumentFactory extends Factory
      */
     public function currency(string $currency): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'currency' => $currency,
         ]);
     }
@@ -125,7 +125,7 @@ final class DocumentFactory extends Factory
      */
     protected function ofType(DocumentType $type): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'type' => $type,
             'number' => $this->number($type),
             'status' => fake()->randomElement($type->statuses()),

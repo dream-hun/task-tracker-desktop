@@ -7,20 +7,20 @@ use App\Models\DocumentItem;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia;
 
-test('guests are redirected to the login page', function () {
+test('guests are redirected to the login page', function (): void {
     $response = $this->get(route('documents.index'));
 
     $response->assertRedirect(route('login'));
 });
 
-test('the list shows invoices unless another type is asked for', function () {
+test('the list shows invoices unless another type is asked for', function (): void {
     $user = User::factory()->create();
     Document::factory()->for($user)->invoice()->create(['client_name' => 'Acme Industries']);
     Document::factory()->for($user)->quotation()->create(['client_name' => 'Globex Corporation']);
 
     $response = $this->actingAs($user)->get(route('documents.index'));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->component('documents/index')
         ->where('type', 'invoice')
         ->has('documents.data', 1)
@@ -28,14 +28,14 @@ test('the list shows invoices unless another type is asked for', function () {
     );
 });
 
-test('quotations can be listed', function () {
+test('quotations can be listed', function (): void {
     $user = User::factory()->create();
     Document::factory()->for($user)->invoice()->create(['client_name' => 'Acme Industries']);
     Document::factory()->for($user)->quotation()->create(['client_name' => 'Globex Corporation']);
 
     $response = $this->actingAs($user)->get(route('documents.index', ['type' => 'quotation']));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->where('type', 'quotation')
         ->has('documents.data', 1)
         ->where('documents.data.0.client_name', 'Globex Corporation')
@@ -43,46 +43,46 @@ test('quotations can be listed', function () {
     );
 });
 
-test('users only see their own documents', function () {
+test('users only see their own documents', function (): void {
     $user = User::factory()->create();
     Document::factory()->for($user)->invoice()->create(['client_name' => 'Acme Industries']);
     Document::factory()->invoice()->create(['client_name' => 'Someone Else']);
 
     $response = $this->actingAs($user)->get(route('documents.index'));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->has('documents.data', 1)
         ->where('documents.data.0.client_name', 'Acme Industries')
     );
 });
 
-test('documents can be filtered by status', function () {
+test('documents can be filtered by status', function (): void {
     $user = User::factory()->create();
     Document::factory()->for($user)->invoice()->draft()->create(['client_name' => 'Still Drafting']);
     Document::factory()->for($user)->invoice()->paid()->create(['client_name' => 'Already Paid']);
 
     $response = $this->actingAs($user)->get(route('documents.index', ['status' => 'paid']));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->has('documents.data', 1)
         ->where('documents.data.0.client_name', 'Already Paid')
         ->where('filters.status', 'paid')
     );
 });
 
-test('a status that does not apply to the listed type is ignored', function () {
+test('a status that does not apply to the listed type is ignored', function (): void {
     $user = User::factory()->create();
     Document::factory()->for($user)->quotation()->count(2)->create();
 
     $response = $this->actingAs($user)->get(route('documents.index', ['type' => 'quotation', 'status' => 'paid']));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->has('documents.data', 2)
         ->where('filters.status', null)
     );
 });
 
-test('documents can be searched by number, client name and client email', function () {
+test('documents can be searched by number, client name and client email', function (): void {
     $user = User::factory()->create();
     Document::factory()->for($user)->invoice()->create(['number' => 'INV-2026-0042', 'client_name' => 'Acme', 'client_email' => 'ap@acme.test']);
     Document::factory()->for($user)->invoice()->create(['number' => 'INV-2026-0043', 'client_name' => 'Wayne Enterprises', 'client_email' => 'billing@acme-supplies.test']);
@@ -90,13 +90,13 @@ test('documents can be searched by number, client name and client email', functi
 
     $response = $this->actingAs($user)->get(route('documents.index', ['search' => 'acme']));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->has('documents.data', 2)
         ->where('filters.search', 'acme')
     );
 });
 
-test('the list summarizes the documents of the type it shows', function () {
+test('the list summarizes the documents of the type it shows', function (): void {
     $user = User::factory()->create();
     $zeroRated = ['tax_rate' => 0, 'discount' => 0];
 
@@ -116,7 +116,7 @@ test('the list summarizes the documents of the type it shows', function () {
 
     $response = $this->actingAs($user)->get(route('documents.index'));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->where('stats.total', 4)
         ->where('stats.drafts', 1)
         ->where('stats.open', 2)
@@ -128,52 +128,52 @@ test('the list summarizes the documents of the type it shows', function () {
     );
 });
 
-test('the summary reports no currency when the documents mix them', function () {
+test('the summary reports no currency when the documents mix them', function (): void {
     $user = User::factory()->create();
     Document::factory()->for($user)->invoice()->currency('USD')->create();
     Document::factory()->for($user)->invoice()->currency('EUR')->create();
 
     $response = $this->actingAs($user)->get(route('documents.index'));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->where('stats.currency', null)
     );
 });
 
-test('the most recently issued documents are listed first', function () {
+test('the most recently issued documents are listed first', function (): void {
     $user = User::factory()->create();
     Document::factory()->for($user)->invoice()->create(['number' => 'INV-2026-0001', 'issue_date' => '2026-01-05', 'due_date' => null]);
     Document::factory()->for($user)->invoice()->create(['number' => 'INV-2026-0009', 'issue_date' => '2026-03-01', 'due_date' => null]);
 
     $response = $this->actingAs($user)->get(route('documents.index'));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->where('documents.data.0.number', 'INV-2026-0009')
         ->where('documents.data.1.number', 'INV-2026-0001')
     );
 });
 
-test('the document list is paginated', function () {
+test('the document list is paginated', function (): void {
     $user = User::factory()->create();
     Document::factory()->for($user)->invoice()->count(12)->create();
 
     $response = $this->actingAs($user)->get(route('documents.index'));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->has('documents.data', 10)
         ->where('documents.total', 12)
         ->where('documents.last_page', 2)
     );
 });
 
-test('each listed document carries its lines and totals', function () {
+test('each listed document carries its lines and totals', function (): void {
     $user = User::factory()->create();
     $invoice = Document::factory()->for($user)->invoice()->create(['tax_rate' => 10, 'discount' => 5]);
     DocumentItem::factory()->for($invoice)->billing(2, 50)->create();
 
     $response = $this->actingAs($user)->get(route('documents.index'));
 
-    $response->assertOk()->assertInertia(fn (AssertableInertia $page) => $page
+    $response->assertOk()->assertInertia(fn (AssertableInertia $page): AssertableInertia => $page
         ->has('documents.data.0.items', 1)
         ->where('documents.data.0.subtotal_cents', 10000)
         ->where('documents.data.0.tax_cents', 950)

@@ -9,7 +9,7 @@ use App\Models\Document;
 use App\Models\DocumentItem;
 use App\Models\User;
 
-test('a quotation can be converted into a draft invoice', function () {
+test('a quotation can be converted into a draft invoice', function (): void {
     $user = User::factory()->create();
     $quotation = Document::factory()->for($user)->quotation()->sent()->create([
         'number' => 'QUO-2026-0003',
@@ -44,7 +44,7 @@ test('a quotation can be converted into a draft invoice', function () {
     expect($invoice->total_cents)->toBe(109149);
 });
 
-test('converting a quotation marks it as accepted', function () {
+test('converting a quotation marks it as accepted', function (): void {
     $user = User::factory()->create();
     $quotation = Document::factory()->for($user)->quotation()->sent()->create();
     DocumentItem::factory()->for($quotation)->billing(1, 100)->create();
@@ -54,7 +54,7 @@ test('converting a quotation marks it as accepted', function () {
     expect($quotation->refresh()->status)->toBe(DocumentStatus::Accepted);
 });
 
-test('an invoice cannot be converted', function () {
+test('an invoice cannot be converted', function (): void {
     $user = User::factory()->create();
     $invoice = Document::factory()->for($user)->invoice()->sent()->create();
 
@@ -63,7 +63,7 @@ test('an invoice cannot be converted', function () {
     expect($user->documents()->count())->toBe(1);
 });
 
-test('a quotation of another user cannot be converted', function () {
+test('a quotation of another user cannot be converted', function (): void {
     $quotation = Document::factory()->quotation()->sent()->create();
 
     $this
@@ -71,5 +71,5 @@ test('a quotation of another user cannot be converted', function () {
         ->post(route('documents.convert', $quotation))
         ->assertForbidden();
 
-    expect(Document::count())->toBe(1);
+    expect(Document::query()->count())->toBe(1);
 });

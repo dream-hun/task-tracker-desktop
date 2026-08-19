@@ -26,9 +26,9 @@ final class DocumentController extends Controller
     /**
      * The number of days an invoice is payable, and a quotation stays valid, by default.
      */
-    protected const int INVOICE_TERM_IN_DAYS = 14;
+    private const int INVOICE_TERM_IN_DAYS = 14;
 
-    protected const int QUOTATION_TERM_IN_DAYS = 30;
+    private const int QUOTATION_TERM_IN_DAYS = 30;
 
     /**
      * Show the invoices or quotations of the user.
@@ -42,7 +42,7 @@ final class DocumentController extends Controller
         $status = DocumentStatus::tryFrom($request->string('status')->toString());
         $status = $status?->appliesTo($type) === true ? $status : null;
 
-        $documents = Document::whereBelongsTo($user)
+        $documents = Document::query()->whereBelongsTo($user)
             ->ofType($type)
             ->when($search, fn (Builder $query, string $search) => $query->search($search))
             ->when($status, fn (Builder $query, DocumentStatus $status) => $query->withStatus($status))
@@ -160,7 +160,7 @@ final class DocumentController extends Controller
     /**
      * Resolve the document type the request is about, falling back to invoices.
      */
-    protected function requestedType(Request $request): DocumentType
+    private function requestedType(Request $request): DocumentType
     {
         return DocumentType::tryFrom($request->string('type')->toString()) ?? DocumentType::Invoice;
     }

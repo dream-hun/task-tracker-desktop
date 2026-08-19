@@ -9,7 +9,7 @@ use App\Models\Document;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-final class CreateDocument
+final readonly class CreateDocument
 {
     public function __construct(
         private GenerateDocumentNumber $generateNumber,

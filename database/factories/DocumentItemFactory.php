@@ -34,7 +34,7 @@ final class DocumentItemFactory extends Factory
      */
     public function billing(float|int|string $quantity, float|int|string $unitPrice): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'quantity' => $quantity,
             'unit_price' => $unitPrice,
         ]);

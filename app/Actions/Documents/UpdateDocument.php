@@ -7,7 +7,7 @@ namespace App\Actions\Documents;
 use App\Models\Document;
 use Illuminate\Support\Facades\DB;
 
-final class UpdateDocument
+final readonly class UpdateDocument
 {
     public function __construct(private SyncDocumentItems $syncItems) {}
 

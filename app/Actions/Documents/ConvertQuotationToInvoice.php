@@ -10,7 +10,7 @@ use App\Models\Document;
 use App\Models\DocumentItem;
 use Illuminate\Support\Facades\DB;
 
-final class ConvertQuotationToInvoice
+final readonly class ConvertQuotationToInvoice
 {
     /**
      * The number of days a converted invoice is payable in.

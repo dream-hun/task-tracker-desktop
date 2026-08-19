@@ -8,6 +8,7 @@ use App\Enums\DocumentStatus;
 use App\Enums\DocumentType;
 use Carbon\CarbonImmutable;
 use Database\Factories\DocumentFactory;
+use Illuminate\Database\Eloquent\Attributes\Appends;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -59,6 +60,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'discount',
     'notes',
 ])]
+#[Appends(['subtotal_cents', 'tax_cents', 'total_cents', 'is_overdue'])]
 final class Document extends Model
 {
     /** @use HasFactory<DocumentFactory> */
@@ -85,13 +87,6 @@ final class Document extends Model
         'status' => DocumentStatus::Draft->value,
         'currency' => self::DEFAULT_CURRENCY,
     ];
-
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var list<string>
-     */
-    protected $appends = ['subtotal_cents', 'tax_cents', 'total_cents', 'is_overdue'];
 
     /**
      * Get the user the document belongs to.
@@ -281,6 +276,6 @@ final class Document extends Model
     #[Scope]
     protected function orderByIssueDate(Builder $query): void
     {
-        $query->orderByDesc('issue_date')->orderByDesc('id');
+        $query->latest('issue_date')->orderByDesc('id');
     }
 }
