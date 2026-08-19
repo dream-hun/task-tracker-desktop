@@ -17,7 +17,8 @@
         "laravel/framework": "^13.25",
         "laravel/tinker": "^3.0.2",
         "laravel/wayfinder": "^0.1.21",
-        "nativephp/desktop": "^2.2.1"
+        "nativephp/desktop": "^2.2.1",
+        "resend/resend-php": "^1.9"
     },
     "require-dev": {
         "driftingly/rector-laravel": "^2.5",

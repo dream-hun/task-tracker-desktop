@@ -35,3 +35,30 @@ Everything in `nativephp/electron` is published from `vendor/nativephp/desktop/r
 Flat-config gotcha: the `!nativephp/electron/` line is load-bearing. ESLint never traverses into an ignored directory, so un-ignoring the directory has to come before un-ignoring the file, or `php.js` is silently skipped as "ignored by a matching pattern".
 
 Prettier (`resources/` only) and `tsc` (`resources/js/**` only) already exclude this directory — ESLint was the odd one out. Note that a republish overwrites `php.js` with the vendor copy: CI will fail on import order again, which is a useful signal that the inflate fix above was lost.
+
+## Never run two native:build processes at once
+electron-builder's AppImage target stages into a fixed path, `nativephp/electron/dist/__appImage-x64`, and `createStageDirPath` does an `rm -rf` on it before every build. Starting a second `php artisan native:build` while one is still running deletes the first run's staging directory out from under it.
+
+The first run then dies with a misleading error:
+`cannot execute cause=fork/exec .../appimage-12.0.1/linux-x64/mksquashfs: no such file or directory`
+
+The mksquashfs binary is fine — the missing directory is the `workingDir` in that message, not the binary. Do not clear the electron-builder cache in response; just let one build finish. Linux packaging takes ~15 minutes (the mksquashfs pass alone is ~10 for a 630 MB payload).
+
+## native:build fails at the packaging target with a bogus ENOENT — run electron-builder directly
+`php artisan native:build linux x64` packages `dist/linux-unpacked` fine, then dies at the packaging target with ENOENT on the packaging tool: `mksquashfs ... no such file or directory` for AppImage, `fpm process failed ENOENT` for deb.
+
+Both tools are fine. Verify before chasing it: `~/.cache/electron-builder/appimage/appimage-12.0.1/linux-x64/mksquashfs -version` and `~/.cache/electron-builder/fpm@2.1.4/*/fpm --version` both run standalone, and spawning fpm from Node with `{env: process.env}` works. Do not clear the electron-builder cache or reinstall fpm — the cache is intact. Root cause is unresolved; the trigger is something about the environment Laravel's Process passes to the npm script, not a missing binary.
+
+Workaround that produces the artifact: let `native:build` run first (it does the copy-to-build-dir, env cleaning, icon install, vendor prune, and populates `vendor/nativephp/desktop/resources/build`), then re-run just the builder from `nativephp/electron` with the same env vars it passes:
+
+    APP_PATH=<repo> APP_URL=<app.url> NATIVEPHP_BUILDING=1 \
+    NATIVEPHP_PHP_BINARY_PATH=<repo>/vendor/nativephp/php-bin/bin/ \
+    NATIVEPHP_BUILD_PATH=<repo>/vendor/nativephp/desktop/resources/build \
+    NATIVEPHP_APP_NAME=... NATIVEPHP_APP_ID=... NATIVEPHP_APP_VERSION=... \
+    NATIVEPHP_APP_FILENAME=... NATIVEPHP_APP_AUTHOR=... NATIVEPHP_UPDATER_ENABLED=true \
+    NATIVEPHP_UPDATER_CONFIG='{"provider":"spaces",...}' \
+    npm run build:linux-x64
+
+Because AppImage is first in `linux.target`, its failure aborts the run before deb is ever attempted. To get only the deb, temporarily set `target: ['deb']` in `electron-builder.mjs` and restore it after (that file is vendor-published).
+
+Also note `php artisan tinker` and `php artisan list` are currently broken by a duplicate `native:migrate:fresh` registration, so you cannot dump the build env vars that way.

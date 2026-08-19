@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "An awesome app built with NativePHP",
     "main": "./out/main/index.js",
-    "author": null,
+    "author": "Dream Hun",
     "homepage": "https://nativephp.com",
     "type": "module",
     "engines": {
