@@ -6,3 +6,4 @@ Before planning or editing, find the row whose globs match the file's path and r
 | --- | --- |
 | nativephp/electron/php.js, nativephp/electron/** | .ai/rules/electron.md |
 | app/Models/Task.php | .ai/rules/models.md |
+| app/Http/**, app/Providers/**, routes/**, config/fortify.php | .ai/rules/http.md |
