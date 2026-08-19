@@ -118,7 +118,7 @@ export default {
         artifactName: appName + '-${version}-${arch}.${ext}',
     },
     linux: {
-        target: ['AppImage', 'deb'],
+        target: ['deb'],
         maintainer: appUrl,
         category: 'Utility',
     },
