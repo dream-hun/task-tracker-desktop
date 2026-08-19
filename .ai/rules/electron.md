@@ -28,3 +28,10 @@ If that exits 0 but still leaves `dist/` with only a stray `locales/` entry, its
     printf 'electron' > path.txt
 
 On Linux with `kernel.apparmor_restrict_unprivileged_userns=1`, Electron then aborts on the SUID sandbox. Fix once per install: `sudo chown root:root dist/chrome-sandbox && sudo chmod 4755 dist/chrome-sandbox`.
+
+## Root ESLint lints php.js and nothing else under nativephp/
+Everything in `nativephp/electron` is published from `vendor/nativephp/desktop/resources/electron` and is overwritten by `native:install --force --publish` (composer `post-update-cmd`), so app style rules must not apply to it — root `eslint.config.js` ignores `nativephp/**/*`. `php.js` is the one file we patch, so it is un-ignored and given `globals.node` (the root config only supplies browser globals, otherwise every `process`/`Buffer` use is `no-undef`).
+
+Flat-config gotcha: the `!nativephp/electron/` line is load-bearing. ESLint never traverses into an ignored directory, so un-ignoring the directory has to come before un-ignoring the file, or `php.js` is silently skipped as "ignored by a matching pattern".
+
+Prettier (`resources/` only) and `tsc` (`resources/js/**` only) already exclude this directory — ESLint was the odd one out. Note that a republish overwrites `php.js` with the vendor copy: CI will fail on import order again, which is a useful signal that the inflate fix above was lost.
