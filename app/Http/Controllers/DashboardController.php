@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Tasks\SummarizeTasks;
 use App\Models\Task;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,7 +16,7 @@ class DashboardController extends Controller
      */
     public function __invoke(Request $request, SummarizeTasks $summarize): Response
     {
-        $user = $request->user();
+        $user = $request->user() ?? throw new AuthenticationException;
 
         return Inertia::render('dashboard', [
             'stats' => $summarize->handle($user),

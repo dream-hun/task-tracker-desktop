@@ -8,6 +8,7 @@ use App\Enums\TaskStatus;
 use App\Http\Requests\Tasks\StoreTaskRequest;
 use App\Http\Requests\Tasks\UpdateTaskRequest;
 use App\Models\Task;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class TaskController extends Controller
      */
     public function index(Request $request, SummarizeTasks $summarize): Response
     {
-        $user = $request->user();
+        $user = $request->user() ?? throw new AuthenticationException;
 
         $search = $request->string('search')->trim()->toString() ?: null;
         $status = TaskStatus::tryFrom($request->string('status')->toString());
@@ -54,7 +55,9 @@ class TaskController extends Controller
      */
     public function store(StoreTaskRequest $request): RedirectResponse
     {
-        $request->user()->tasks()->create($request->validated());
+        $user = $request->user() ?? throw new AuthenticationException;
+
+        $user->tasks()->create($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Task created.')]);
 

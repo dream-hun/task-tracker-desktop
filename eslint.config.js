@@ -108,6 +108,10 @@ export default [
             'node_modules',
             'public',
             'bootstrap/ssr',
+            // Published by `artisan native:install`; php.js is the only file we own.
+            'nativephp/**/*',
+            '!nativephp/electron/',
+            '!nativephp/electron/php.js',
             'tailwind.config.js',
             'vite.config.ts',
             'resources/js/actions/**',
@@ -115,6 +119,14 @@ export default [
             'resources/js/routes/**',
             'resources/js/wayfinder/**',
         ],
+    },
+    {
+        files: ['nativephp/electron/php.js'],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
     },
     prettier,
     {
