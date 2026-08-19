@@ -16,7 +16,7 @@ function desktopIcon(string $file): string
 }
 
 /**
- * @return list<array{width: int, size: int}>
+ * @return list<array{width: int, size: int, offset: int}>
  */
 function icoEntries(string $path): array
 {
@@ -38,10 +38,84 @@ function icoEntries(string $path): array
         $entries[] = [
             'width' => $entry['width'] === 0 ? 256 : $entry['width'],
             'size' => $entry['size'],
+            'offset' => $entry['offset'],
         ];
     }
 
     return $entries;
+}
+
+/**
+ * The md5 of each image embedded in an `.ico`, keyed by its pixel width.
+ *
+ * The `'8bit'` encoding on every `mb_*` call below is load-bearing: Pint's
+ * `mb_str_functions` rule rewrites `substr`/`strlen` here, and the multibyte
+ * versions count UTF-8 characters unless told otherwise, which silently
+ * mangles the offsets into binary icon data.
+ *
+ * @return array<int, string>
+ */
+function icoFrames(string $path): array
+{
+    $binary = (string) file_get_contents($path);
+    $frames = [];
+
+    foreach (icoEntries($path) as $entry) {
+        $frames[$entry['width']] = md5(mb_substr($binary, $entry['offset'], $entry['size'], '8bit'));
+    }
+
+    return $frames;
+}
+
+/**
+ * The md5 of each image embedded in an `.icns`, keyed by its four-character
+ * chunk type (`ic10` is the 1024px variant, `ic13` the 256px, and so on).
+ *
+ * @return array<string, string>
+ */
+function icnsChunks(string $path): array
+{
+    $binary = (string) file_get_contents($path);
+    $chunks = [];
+    $offset = 8;
+
+    while ($offset < mb_strlen($binary, '8bit') - 8) {
+        $chunk = unpack('a4type/Nlength', $binary, $offset);
+
+        if ($chunk['length'] < 8) {
+            break;
+        }
+
+        $chunks[$chunk['type']] = md5(mb_substr($binary, $offset + 8, $chunk['length'] - 8, '8bit'));
+        $offset += $chunk['length'];
+    }
+
+    return $chunks;
+}
+
+/**
+ * NativePHP ships placeholder artwork for these three files and no others — the
+ * whitelist in the package's own `resources/build/.gitignore` covers `icon.png`,
+ * `IconTemplate.png` and `IconTemplate@2x.png`, but neither `icon.ico` nor
+ * `icon.icns`.
+ *
+ * The hashes are pinned here instead of being read back out of `vendor/` because
+ * `resources/build/` is a staging directory that `native:build` overwrites with
+ * copies of this app's own icons. Comparing against it skipped silently on a
+ * clean install (where the `.ico`/`.icns` never exist) and compared our icons
+ * against stale copies of themselves on a machine that had run a build.
+ *
+ * Verified against nativephp/desktop 2.2.1 (552cdd7).
+ *
+ * @return array<string, string>
+ */
+function nativePhpPlaceholderMd5(): array
+{
+    return [
+        'icon.png' => '2bb370f9c43ae4a09c76bd8f79ba1f59',
+        'IconTemplate.png' => '94933ff729793bd2de26f881cb6b8873',
+        'IconTemplate@2x.png' => '94741ab505d03a9b42f146d4bb712952',
+    ];
 }
 
 test('every icon the desktop installer needs is present', function (string $file): void {
@@ -84,11 +158,26 @@ test('the menu bar template icons are the exact pair macOS expects', function (s
 ]);
 
 test('the icons are our own artwork rather than the NativePHP placeholders', function (string $file): void {
-    $placeholder = dirname(__DIR__, 2).'/vendor/nativephp/desktop/resources/build/'.$file;
+    expect(md5_file(desktopIcon($file)))->not->toBe(nativePhpPlaceholderMd5()[$file]);
+})->with(array_keys(nativePhpPlaceholderMd5()));
 
-    if (! is_file($placeholder)) {
-        $this->markTestSkipped('The NativePHP placeholder icons are not installed.');
-    }
+/**
+ * NativePHP ships no `.ico`/`.icns` placeholder to compare against, so these two
+ * inherit the guarantee above by carrying the very same rasterisations as
+ * `icon.png`, which the placeholder test does cover.
+ */
+test('the macOS icon embeds our own 1024px app icon', function (): void {
+    expect(icnsChunks(desktopIcon('icon.icns')))
+        ->toHaveKey('ic10', md5_file(desktopIcon('icon.png')));
+});
 
-    expect(md5_file(desktopIcon($file)))->not->toBe(md5_file($placeholder));
-})->with(['icon.png', 'icon.ico', 'icon.icns', 'IconTemplate.png', 'IconTemplate@2x.png']);
+test('the windows icon is rasterised from the same artwork as the macOS icon', function (): void {
+    $ico = icoFrames(desktopIcon('icon.ico'));
+    $icns = icnsChunks(desktopIcon('icon.icns'));
+
+    expect($ico[16])->toBe($icns['icp4'])
+        ->and($ico[32])->toBe($icns['ic11'])
+        ->and($ico[64])->toBe($icns['ic12'])
+        ->and($ico[128])->toBe($icns['ic07'])
+        ->and($ico[256])->toBe($icns['ic13']);
+});
