@@ -1,3 +1,9 @@
+import {
+    formatDate,
+    formatTimestamp,
+    parseDateValue,
+    toDateValue,
+} from '@/lib/dates';
 import type { TaskPriority, TaskStatus } from '@/types';
 
 export const taskStatusLabels: Record<TaskStatus, string> = {
@@ -31,40 +37,26 @@ export const taskPriorityClasses: Record<TaskPriority, string> = {
  * Read a `Y-m-d` due date as a local date, so it never shifts a day across time zones.
  */
 export function parseDueDate(dueDate: string): Date {
-    const [year, month, day] = dueDate.split('-').map(Number);
-
-    return new Date(year, month - 1, day);
+    return parseDateValue(dueDate);
 }
 
 /**
  * Write a local date back as the `Y-m-d` value the server expects.
  */
 export function toDueDateValue(date: Date): string {
-    return [
-        date.getFullYear(),
-        String(date.getMonth() + 1).padStart(2, '0'),
-        String(date.getDate()).padStart(2, '0'),
-    ].join('-');
+    return toDateValue(date);
 }
 
 /**
  * Format a `Y-m-d` due date without shifting it across time zones.
  */
 export function formatDueDate(dueDate: string): string {
-    return parseDueDate(dueDate).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    });
+    return formatDate(dueDate);
 }
 
 /**
  * Format the moment a task was completed in the viewer's time zone.
  */
 export function formatCompletedAt(completedAt: string): string {
-    return new Date(completedAt).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    });
+    return formatTimestamp(completedAt);
 }

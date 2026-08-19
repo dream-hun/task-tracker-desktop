@@ -58,4 +58,14 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasMany(Task::class);
     }
+
+    /**
+     * Get the invoices and quotations that belong to the user.
+     *
+     * @return HasMany<Document, $this>
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
 }
