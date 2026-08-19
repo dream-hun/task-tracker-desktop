@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Requests\Tasks;
 
 use App\Concerns\TaskValidationRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateTaskStatusRequest extends FormRequest
+final class UpdateTaskStatusRequest extends FormRequest
 {
     use TaskValidationRules;
 

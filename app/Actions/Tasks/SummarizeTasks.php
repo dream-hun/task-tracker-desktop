@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Tasks;
 
 use App\Enums\TaskStatus;
 use App\Models\User;
 
-class SummarizeTasks
+final class SummarizeTasks
 {
     /**
      * Count the user's tasks per status, plus totals and overdue tasks.

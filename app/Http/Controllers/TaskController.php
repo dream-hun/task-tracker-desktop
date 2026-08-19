@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Actions\Tasks\SummarizeTasks;
@@ -16,7 +18,7 @@ use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class TaskController extends Controller
+final class TaskController extends Controller
 {
     /**
      * Show the user's task list.
@@ -29,7 +31,7 @@ class TaskController extends Controller
         $status = TaskStatus::tryFrom($request->string('status')->toString());
         $priority = TaskPriority::tryFrom($request->string('priority')->toString());
 
-        $tasks = Task::whereBelongsTo($user)
+        $tasks = Task::query()->whereBelongsTo($user)
             ->when($search, fn (Builder $query, string $search) => $query->search($search))
             ->when($status, fn (Builder $query, TaskStatus $status) => $query->withStatus($status))
             ->when($priority, fn (Builder $query, TaskPriority $priority) => $query->withPriority($priority))

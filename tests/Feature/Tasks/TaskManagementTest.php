@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
 use App\Models\Task;
 use App\Models\User;
 
-test('a task can be created', function () {
+test('a task can be created', function (): void {
     $user = User::factory()->create();
 
     $response = $this
@@ -30,7 +32,7 @@ test('a task can be created', function () {
     expect($task->completed_at)->toBeNull();
 });
 
-test('a task can be created without optional details', function () {
+test('a task can be created without optional details', function (): void {
     $user = User::factory()->create();
 
     $response = $this
@@ -52,7 +54,7 @@ test('a task can be created without optional details', function () {
     expect($task->due_date)->toBeNull();
 });
 
-test('creating a task validates the submitted details', function (array $payload, string $invalidField) {
+test('creating a task validates the submitted details', function (array $payload, string $invalidField): void {
     $user = User::factory()->create();
 
     $response = $this
@@ -75,7 +77,7 @@ test('creating a task validates the submitted details', function (array $payload
     'invalid due date' => [['due_date' => 'next thursday'], 'due_date'],
 ]);
 
-test('a task can be updated', function () {
+test('a task can be updated', function (): void {
     $user = User::factory()->create();
     $task = Task::factory()->for($user)->pending()->create(['title' => 'Old title']);
 
@@ -100,7 +102,7 @@ test('a task can be updated', function () {
     expect($task->due_date->toDateString())->toBe('2026-10-05');
 });
 
-test('a task cannot be updated by another user', function () {
+test('a task cannot be updated by another user', function (): void {
     $task = Task::factory()->create(['title' => 'Not yours']);
 
     $response = $this
@@ -116,7 +118,7 @@ test('a task cannot be updated by another user', function () {
     expect($task->refresh()->title)->toBe('Not yours');
 });
 
-test('completing a task records when it was finished', function () {
+test('completing a task records when it was finished', function (): void {
     $user = User::factory()->create();
     $task = Task::factory()->for($user)->pending()->create();
 
@@ -133,7 +135,7 @@ test('completing a task records when it was finished', function () {
     expect($task->completed_at)->not->toBeNull();
 });
 
-test('reopening a task clears when it was finished', function () {
+test('reopening a task clears when it was finished', function (): void {
     $user = User::factory()->create();
     $task = Task::factory()->for($user)->completed()->create();
 
@@ -149,7 +151,7 @@ test('reopening a task clears when it was finished', function () {
     expect($task->completed_at)->toBeNull();
 });
 
-test('the status of a task cannot be changed by another user', function () {
+test('the status of a task cannot be changed by another user', function (): void {
     $task = Task::factory()->pending()->create();
 
     $response = $this
@@ -161,7 +163,7 @@ test('the status of a task cannot be changed by another user', function () {
     expect($task->refresh()->status)->toBe(TaskStatus::Pending);
 });
 
-test('a task can be deleted', function () {
+test('a task can be deleted', function (): void {
     $user = User::factory()->create();
     $task = Task::factory()->for($user)->create();
 
@@ -175,7 +177,7 @@ test('a task can be deleted', function () {
     $this->assertModelMissing($task);
 });
 
-test('a task cannot be deleted by another user', function () {
+test('a task cannot be deleted by another user', function (): void {
     $task = Task::factory()->create();
 
     $response = $this
@@ -187,7 +189,7 @@ test('a task cannot be deleted by another user', function () {
     $this->assertModelExists($task);
 });
 
-test('deleting a user deletes their tasks', function () {
+test('deleting a user deletes their tasks', function (): void {
     $user = User::factory()->create();
     $task = Task::factory()->for($user)->create();
 

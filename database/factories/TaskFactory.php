@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Enums\TaskPriority;
@@ -12,7 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends Factory<Task>
  */
-class TaskFactory extends Factory
+final class TaskFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -37,7 +39,7 @@ class TaskFactory extends Factory
      */
     public function pending(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'status' => TaskStatus::Pending,
         ]);
     }
@@ -47,7 +49,7 @@ class TaskFactory extends Factory
      */
     public function inProgress(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'status' => TaskStatus::InProgress,
         ]);
     }
@@ -57,7 +59,7 @@ class TaskFactory extends Factory
      */
     public function completed(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'status' => TaskStatus::Completed,
         ]);
     }
@@ -67,7 +69,7 @@ class TaskFactory extends Factory
      */
     public function overdue(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'status' => TaskStatus::Pending,
             'due_date' => now()->subDays(3),
         ]);
@@ -78,7 +80,7 @@ class TaskFactory extends Factory
      */
     public function highPriority(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn (array $attributes): array => [
             'priority' => TaskPriority::High,
         ]);
     }

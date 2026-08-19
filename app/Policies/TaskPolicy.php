@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\Task;
 use App\Models\User;
 
-class TaskPolicy
+final class TaskPolicy
 {
     /**
      * Determine whether the user can view the task.
