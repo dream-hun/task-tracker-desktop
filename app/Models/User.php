@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
+
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,10 +32,22 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  */
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable implements PasskeyUser
+final class User extends Authenticatable implements PasskeyUser
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+    use HasFactory;
+    use Notifiable;
+    use PasskeyAuthenticatable;
+    use TwoFactorAuthenticatable;
+
+    /**
+     * Get the tasks that belong to the user.
+     *
+     * @return HasMany<Task, $this>
+     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -47,15 +61,5 @@ class User extends Authenticatable implements PasskeyUser
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
         ];
-    }
-
-    /**
-     * Get the tasks that belong to the user.
-     *
-     * @return HasMany<Task, $this>
-     */
-    public function tasks(): HasMany
-    {
-        return $this->hasMany(Task::class);
     }
 }
