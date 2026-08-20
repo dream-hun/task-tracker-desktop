@@ -108,6 +108,9 @@ export default [
             'node_modules',
             'public',
             'bootstrap/ssr',
+            // Agent worktrees are full repo checkouts; their vendor/ and
+            // nativephp/ copies sit below the paths ignored above.
+            '.claude',
             // Published by `artisan native:install`; php.js is the only file we own.
             'nativephp/**/*',
             '!nativephp/electron/',

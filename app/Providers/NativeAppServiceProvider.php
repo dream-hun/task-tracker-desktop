@@ -17,11 +17,10 @@ final class NativeAppServiceProvider implements ProvidesPhpIni
     public function boot(): void
     {
         Window::open()
-            ->width(1200)->height(800);
-        Window::open()->maximized();
+            ->width(1200)
+            ->height(800);
+
         MenuBar::create()->showDockIcon();
-        MenuBar::show();
-        MenuBar::hide();
         MenuBar::label('Status: Online');
     }
 
@@ -33,7 +32,7 @@ final class NativeAppServiceProvider implements ProvidesPhpIni
     public function phpIni(): array
     {
         return [
-            'memory_limit' => '521M',
+            'memory_limit' => '512M',
             'display_errors' => '1',
             'error_reporting' => 'E_ALL',
             'max_execution_time' => '0',
