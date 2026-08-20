@@ -10,12 +10,20 @@ use App\Http\Controllers\DocumentPrintController;
 use App\Http\Controllers\DocumentStatusController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskStatusController;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
-Route::get('/', fn () => Inertia::render('welcome'))->name('home');
+/**
+ * The packaged desktop app launches straight into this route, so it hands the
+ * user the login screen rather than a marketing page. Fortify sends them on to
+ * `fortify.home` once they authenticate.
+ */
+Route::get('/', fn (): RedirectResponse => redirect()->route(
+    Auth::check() ? 'dashboard' : 'login',
+))->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function (): void {
+Route::middleware(['auth'])->group(function (): void {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::resource('tasks', TaskController::class)->only(['index', 'store', 'update', 'destroy']);
