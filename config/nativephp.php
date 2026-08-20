@@ -10,7 +10,7 @@ return [
      * It is used to determine if the app needs to be updated.
      * Increment this value every time you release a new version of your app.
      */
-    'version' => env('NATIVEPHP_APP_VERSION', '1.0.0'),
+    'version' => env('NATIVEPHP_APP_VERSION', '1.1.0'),
 
     /**
      * The ID of your application. This should be a unique identifier
@@ -68,6 +68,19 @@ return [
         'GITHUB_*',
         'DO_SPACES_*',
         '*_SECRET',
+        '*_API_KEY',
+        '*_PASSWORD',
+
+        /**
+         * Electron passes APP_ENV=production and APP_DEBUG=false to the PHP process,
+         * but Laravel's .env load overwrites inherited environment variables, so a
+         * value left in the shipped file wins. With debug on, NativePHP points the
+         * SQLite database at database_path() inside the installed bundle instead of
+         * NATIVEPHP_DATABASE_PATH, and that path is read-only once the .deb is
+         * installed under /opt. Stripping both lets the runtime's values apply.
+         */
+        'APP_ENV',
+        'APP_DEBUG',
         'BIFROST_*',
         'NATIVEPHP_UPDATER_PATH',
         'NATIVEPHP_APPLE_ID',
@@ -90,6 +103,18 @@ return [
         'content',
         'node_modules',
         '*/tests',
+        'tests',
+
+        /**
+         * cleanEnvFile only ever processes `.env`, so sibling copies such as the
+         * `.env.before_lerd` backup a local tooling switch leaves behind would ship
+         * with their keys intact.
+         */
+        '.env.*',
+        '.ai',
+        '.agents',
+        '.claude',
+        '.github',
     ],
 
     /**
