@@ -128,8 +128,6 @@ final class DocumentController extends Controller
      */
     public function update(UpdateDocumentRequest $request, Document $document, UpdateDocument $updateDocument): RedirectResponse
     {
-        Gate::authorize('update', $document);
-
         $attributes = $request->validated();
         unset($attributes['items']);
 

@@ -62,7 +62,7 @@ final class SecurityController extends Controller
         $user = $request->user() ?? throw new AuthenticationException;
 
         $user->update([
-            'password' => $request->password,
+            'password' => $request->validated('password'),
         ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);

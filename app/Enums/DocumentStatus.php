@@ -60,4 +60,12 @@ enum DocumentStatus: string
     {
         return $this === self::Paid || $this === self::Accepted;
     }
+
+    /**
+     * Determine whether a quotation with this status can still be turned into an invoice.
+     */
+    public function isConvertible(): bool
+    {
+        return $this !== self::Declined && $this !== self::Cancelled;
+    }
 }

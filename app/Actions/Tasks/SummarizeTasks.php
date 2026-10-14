@@ -16,10 +16,17 @@ final class SummarizeTasks
      */
     public function handle(User $user): array
     {
-        $summary = ['total' => $user->tasks()->count()];
+        $counts = $user->tasks()->toBase()
+            ->selectRaw('status, count(*) as aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
+        $summary = ['total' => 0];
 
         foreach (TaskStatus::cases() as $status) {
-            $summary[$status->value] = $user->tasks()->withStatus($status)->count();
+            $count = $counts->get($status->value);
+            $summary[$status->value] = is_numeric($count) ? (int) $count : 0;
+            $summary['total'] += $summary[$status->value];
         }
 
         $summary['overdue'] = $user->tasks()->overdue()->count();

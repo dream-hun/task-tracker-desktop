@@ -63,6 +63,31 @@ test('an invoice cannot be converted', function (): void {
     expect($user->documents()->count())->toBe(1);
 });
 
+test('a quotation that was declined or cancelled cannot be converted', function (DocumentStatus $status): void {
+    $user = User::factory()->create();
+    $quotation = Document::factory()->for($user)->quotation()->create([
+        'number' => 'QUO-2026-0007',
+        'status' => $status,
+    ]);
+    DocumentItem::factory()->for($quotation)->billing(1, 100)->create();
+
+    $response = $this
+        ->actingAs($user)
+        ->from(route('documents.index', ['type' => 'quotation']))
+        ->post(route('documents.convert', $quotation));
+
+    $response->assertRedirect(route('documents.index', ['type' => 'quotation']))
+        ->assertInertiaFlash('toast', [
+            'type' => 'error',
+            'message' => "QUO-2026-0007 is {$status->value} and cannot be converted.",
+        ]);
+    expect($user->documents()->ofType(DocumentType::Invoice)->count())->toBe(0);
+    expect($quotation->refresh()->status)->toBe($status);
+})->with([
+    'declined' => [DocumentStatus::Declined],
+    'cancelled' => [DocumentStatus::Cancelled],
+]);
+
 test('a quotation of another user cannot be converted', function (): void {
     $quotation = Document::factory()->quotation()->sent()->create();
 

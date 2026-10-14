@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Documents\UpdateDocumentStatusRequest;
 use App\Models\Document;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Gate;
 
 final class DocumentStatusController extends Controller
 {
@@ -16,8 +15,6 @@ final class DocumentStatusController extends Controller
      */
     public function __invoke(UpdateDocumentStatusRequest $request, Document $document): RedirectResponse
     {
-        Gate::authorize('update', $document);
-
         $document->update($request->validated());
 
         return back();

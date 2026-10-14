@@ -152,8 +152,7 @@ final class Task extends Model
     #[Scope]
     protected function overdue(Builder $query): void
     {
-        $query->whereNot('status', TaskStatus::Completed)
-            ->whereDate('due_date', '<', today());
+        $query->open()->whereDate('due_date', '<', today());
     }
 
     /**
