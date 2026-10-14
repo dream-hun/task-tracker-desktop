@@ -123,12 +123,16 @@ test('creating a document validates the submitted details', function (array $pay
     'due date before issue date' => [['due_date' => '2026-08-17'], 'due_date'],
     'unsupported currency' => [['currency' => 'XYZ'], 'currency'],
     'tax rate above a hundred' => [['tax_rate' => '120'], 'tax_rate'],
+    'tax rate with more than two decimals' => [['tax_rate' => '7.125'], 'tax_rate'],
     'negative discount' => [['discount' => '-5'], 'discount'],
+    'discount with more than two decimals' => [['discount' => '2.505'], 'discount'],
     'status of the other type' => [['status' => 'accepted'], 'status'],
     'no lines' => [['items' => []], 'items'],
     'line without description' => [['items' => [['description' => '', 'quantity' => '1', 'unit_price' => '10']]], 'items.0.description'],
     'line without quantity' => [['items' => [['description' => 'Work', 'quantity' => '0', 'unit_price' => '10']]], 'items.0.quantity'],
     'line with a negative price' => [['items' => [['description' => 'Work', 'quantity' => '1', 'unit_price' => '-10']]], 'items.0.unit_price'],
+    'line with a quantity of more than two decimals' => [['items' => [['description' => 'Work', 'quantity' => '1.005', 'unit_price' => '10']]], 'items.0.quantity'],
+    'line with a price of more than two decimals' => [['items' => [['description' => 'Work', 'quantity' => '1', 'unit_price' => '10.005']]], 'items.0.unit_price'],
 ]);
 
 test('a quotation can only use statuses of its own type', function (): void {
@@ -219,6 +223,18 @@ test('a document cannot be edited or updated by another user', function (): void
         ->actingAs(User::factory()->create())
         ->put(route('documents.update', $document), documentPayload())
         ->assertForbidden();
+
+    expect($document->refresh()->client_name)->toBe('Not Yours');
+});
+
+test('another user is refused before a document update is validated', function (): void {
+    $document = Document::factory()->invoice()->create(['client_name' => 'Not Yours']);
+
+    $this
+        ->actingAs(User::factory()->create())
+        ->put(route('documents.update', $document), [])
+        ->assertForbidden()
+        ->assertSessionHasNoErrors();
 
     expect($document->refresh()->client_name)->toBe('Not Yours');
 });

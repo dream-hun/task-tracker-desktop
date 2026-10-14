@@ -71,8 +71,6 @@ final class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task): RedirectResponse
     {
-        Gate::authorize('update', $task);
-
         $task->update($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Task updated.')]);

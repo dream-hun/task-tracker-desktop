@@ -14,6 +14,14 @@ final class UpdateDocumentStatusRequest extends FormRequest
     use DocumentValidationRules;
 
     /**
+     * Determine whether the user may update the document, before its input is validated.
+     */
+    public function authorize(): bool
+    {
+        return $this->user()?->can('update', $this->route('document')) ?? false;
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, ValidationRule|array<mixed>|string>

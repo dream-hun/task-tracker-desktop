@@ -22,6 +22,15 @@ final class DocumentConversionController extends Controller
 
         abort_unless($document->isQuotation(), Response::HTTP_NOT_FOUND);
 
+        if (! $document->status->isConvertible()) {
+            Inertia::flash('toast', ['type' => 'error', 'message' => __(':number is :status and cannot be converted.', [
+                'number' => $document->number,
+                'status' => mb_strtolower($document->status->label()),
+            ])]);
+
+            return back();
+        }
+
         $document->load('items');
 
         $invoice = $convert->handle($document);

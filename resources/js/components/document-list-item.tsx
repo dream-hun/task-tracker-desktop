@@ -138,28 +138,32 @@ export default function DocumentListItem({
                 </Select>
 
                 <div className="flex items-center gap-1">
-                    {document.type === 'quotation' && (
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    aria-label={`Convert ${document.number} to an invoice`}
-                                    onClick={() =>
-                                        router.post(
-                                            DocumentConversionController(
-                                                document.id,
-                                            ).url,
-                                        )
-                                    }
-                                    data-test={`convert-document-${document.id}`}
-                                >
-                                    <FileOutput className="size-4" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Convert to invoice</TooltipContent>
-                        </Tooltip>
-                    )}
+                    {document.type === 'quotation' &&
+                        document.status !== 'declined' &&
+                        document.status !== 'cancelled' && (
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label={`Convert ${document.number} to an invoice`}
+                                        onClick={() =>
+                                            router.post(
+                                                DocumentConversionController(
+                                                    document.id,
+                                                ).url,
+                                            )
+                                        }
+                                        data-test={`convert-document-${document.id}`}
+                                    >
+                                        <FileOutput className="size-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    Convert to invoice
+                                </TooltipContent>
+                            </Tooltip>
+                        )}
 
                     <Tooltip>
                         <TooltipTrigger asChild>

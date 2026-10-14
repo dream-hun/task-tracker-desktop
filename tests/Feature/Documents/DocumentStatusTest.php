@@ -59,3 +59,15 @@ test('the status of a document cannot be changed by another user', function (): 
 
     expect($document->refresh()->status)->toBe(DocumentStatus::Sent);
 });
+
+test('another user is refused before the status of a document is validated', function (): void {
+    $document = Document::factory()->invoice()->sent()->create();
+
+    $this
+        ->actingAs(User::factory()->create())
+        ->patch(route('documents.status.update', $document), ['status' => 'accepted'])
+        ->assertForbidden()
+        ->assertSessionHasNoErrors();
+
+    expect($document->refresh()->status)->toBe(DocumentStatus::Sent);
+});

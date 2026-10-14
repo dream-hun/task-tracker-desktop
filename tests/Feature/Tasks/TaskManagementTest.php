@@ -163,6 +163,18 @@ test('the status of a task cannot be changed by another user', function (): void
     expect($task->refresh()->status)->toBe(TaskStatus::Pending);
 });
 
+test('another user is refused before a task update is validated', function (): void {
+    $task = Task::factory()->create(['title' => 'Not yours']);
+
+    $this
+        ->actingAs(User::factory()->create())
+        ->patch(route('tasks.update', $task), [])
+        ->assertForbidden()
+        ->assertSessionHasNoErrors();
+
+    expect($task->refresh()->title)->toBe('Not yours');
+});
+
 test('a task can be deleted', function (): void {
     $user = User::factory()->create();
     $task = Task::factory()->for($user)->create();
